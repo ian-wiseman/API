@@ -6,8 +6,7 @@ const slackSchema = mongoose.Schema({
         {
             message: String,
             timeStamp: String,
-            user: String,
-            userImage: String
+            userName: String
         }
     ]
 })
