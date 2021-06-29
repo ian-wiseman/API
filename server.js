@@ -1,7 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import mongoData from './mongoData.js'
+import bodyParser from 'body-parser';
+import mongoData from './mongoData.js';
 
 // app config
 const app = express();
@@ -9,7 +10,7 @@ const port = process.env.PORT || 4000;
 
 //middleware
 app.use(cors());
-app.use(express.json);
+app.use(bodyParser.json();
 
 // db config
 const MongoURI = '';
