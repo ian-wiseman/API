@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import bcrypt from 'bcryptjs';
 
 import mongoData from './mongoData.js';
 require('dotenv/config');
@@ -106,7 +107,11 @@ app.post('/register', async (req, res) => {
        } catch(err) {
               res.status(400).send(err);
 });
+
+// Login
+app.post('/login', (req, res) => {
+       const { error } = joi.validate(req.body, schema);
        
 
-// listen
+// Listen
 app.listen(port, () => console.log(`Listening on localhost:${port}`));
