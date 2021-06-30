@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import bcrypt from 'bcryptjs';
+const { registerValidation, loginValidation } = require('/validation');
 
 import mongoData from './mongoData.js';
 require('dotenv/config');
@@ -21,17 +22,6 @@ mongoose.connect(
        process.env.mongoConnection, { useNewUrlParser: true}, () => 
         console.log('DB Connected');
 )
-
-
-// Validation
-
-const joi = require('@hapi/joi');
-
-const schema = {
-       name: joi.string().min(6).required(),
-       email: joi.string().min(6).required().email(),
-       password: joi.string().min(6).required()
-       
 
 // API routes
 
@@ -81,9 +71,9 @@ app.get('/get/conversation', (req, res) => {
 
 // Register new user
 app.post('/register', async (req, res) => {
-       
+    
        // Validate first
-       const { error } = joi.validate(req.body, schema);
+       const { error } = registerValidation(req.body);
        if (error) return res.status(400).send(error.details[0].message);
        
        // Check if user already exists
@@ -110,7 +100,19 @@ app.post('/register', async (req, res) => {
 
 // Login
 app.post('/login', (req, res) => {
-       const { error } = joi.validate(req.body, schema);
+       
+       // Validate first
+       const { error } = loginValidation(req.body);
+       if (error) return res.status(400).send(error.details[0].message);
+       
+       // Check if email exists
+       const emailExists = await User.findOne({email: req.body.email});
+       if (!emailExists) return res.status(400).send('Email not found');
+       
+       
+       // Validate password
+       const validPassword = await bcrypt.compare(req.body.password, user.password);
+       if (!validPassword) return res.status(400).send('Invalid password');
        
 
 // Listen
