@@ -6,15 +6,15 @@ import bodyParser from 'body-parser';
 import mongoData from './mongoData.js';
 require('dotenv/config');
 
-// app config
+// App config
 const app = express();
 const port = process.env.PORT || 4000;
 
-//middleware
+// Middleware
 app.use(cors());
 app.use(bodyParser.json();
 
-// db config
+// DB config
 
 mongoose.connect(
        process.env.mongoConnection, { useNewUrlParser: true}, () => 
@@ -22,9 +22,19 @@ mongoose.connect(
 )
 
 
-// API routes
-app.get('/', (req, res) => res.status(200).send('Welcome to Teale Chat'));
+// Validation
 
+const joi = require('@hapi/joi');
+
+const schema = {
+       name: joi.string().min(6).required(),
+       email: joi.string().min(6).required().email(),
+       password: joi.string().min(6).required()
+       
+
+// API routes
+
+//Create new Channel
 app.post('/new/channel', (req, res) => {
     const dbData = req.body;
 
@@ -37,6 +47,7 @@ app.post('/new/channel', (req, res) => {
     })
 })
 
+// Create a new message
 app.post('/new/message', (req, res) => {
     const id = req.query.id;
     const newMessage = req.body;
@@ -54,25 +65,7 @@ app.post('/new/message', (req, res) => {
     
 })
 
-app.get('/get/channelList', (req, res) => {
-    mongoData.find((err, data) => {
-        if (err) {
-            res.send(500).send(err);
-        } else {
-            let channels = [];
-            data.map((channelData) => {
-                const channelInfo = {
-                    id: channelData._id,
-                    name: channelData.channelName
-                }
-                channels.push(channelInfo);
-            })
-
-            res.status(200).send(channels);
-        }
-    })
-})
-
+// Get conversation
 app.get('/get/conversation', (req, res) => {
     const id = req.query.id;
 
@@ -84,6 +77,36 @@ app.get('/get/conversation', (req, res) => {
         }
     })
 })
+
+// Register new user
+app.post('/register', async (req, res) => {
+       
+       // Validate first
+       const { error } = joi.validate(req.body, schema);
+       if (error) return res.status(400).send(error.details[0].message);
+       
+       // Check if user already exists
+       const emailExists = await User.findOne({email: req.body.email});
+       const userNameExists = await User.findOne({email: req.body.userName});
+       if (emailExists || userNameExists) return res.status(400).send('User already exists');
+       
+       // Hash passwords
+       const salt = await bcrypt.genSalt(10);
+       const hashedPassword = await bcrypt.hash(req.body.password, salt);
+              
+       // Create new user variable
+       const user = new User({
+              name: req.body.name,
+              email: req.body.email,
+              password: hashedPassword
+       });
+       try {
+              const savedUser = await user.save();
+              res.status(200).send(savedUser);
+       } catch(err) {
+              res.status(400).send(err);
+});
+       
 
 // listen
 app.listen(port, () => console.log(`Listening on localhost:${port}`));
