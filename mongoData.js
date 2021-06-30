@@ -15,12 +15,19 @@ const userSchema = mongoose.Schema({
     name: {
         type: String,
         required: true,
-        min: 5
+        min: 5,
+        max: 15
     },
     email: {
         type: String,
         required: true,
-        min: 7
+        min: 5
+    },
+    password: {
+        type: String,
+        required: true,
+        min: 8,
+        max: 25
     }
 });
 
