@@ -2,7 +2,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+
 import mongoData from './mongoData.js';
+require('dotenv/config');
 
 // app config
 const app = express();
@@ -13,21 +15,14 @@ app.use(cors());
 app.use(bodyParser.json();
 
 // db config
-const MongoURI = '';
 
-mongoose.connect(MongoURI, {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
-
-mongoose.connection.once('open', () => {
-    console.log('DB Connected');
-
-})
+mongoose.connect(
+       process.env.mongoConnection, { useNewUrlParser: true}, () => 
+        console.log('DB Connected');
+)
 
 
-// api routes
+// API routes
 app.get('/', (req, res) => res.status(200).send('Welcome to Teale Chat'));
 
 app.post('/new/channel', (req, res) => {
